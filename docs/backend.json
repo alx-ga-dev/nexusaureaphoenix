@@ -1,0 +1,512 @@
+{
+    "entities": {
+      "User": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "User",
+        "type": "object",
+        "description": "Represents a user in the GiftExchangeHub application.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the User entity."
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the user."
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of user (e.g., Blue, Pink)."
+          },
+          "isAdmin": {
+            "type": "boolean",
+            "description": "Indicates if the user has administrative privileges."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type"
+        ]
+      },
+      "Gift": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Gift",
+        "type": "object",
+        "description": "Represents a gift in the catalog.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the Gift entity."
+          },
+          "name": {
+            "type": "object",
+            "description": "The localized names of the gift."
+          },
+          "collection": {
+            "type": "string",
+            "description": "The collection the gift belongs to."
+          },
+          "rarity": {
+            "type": "string",
+            "description": "The rarity of the gift."
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "URL for the gift's image."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "collection",
+          "rarity",
+          "imageUrl"
+        ]
+      },
+      "Collection": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Collection",
+        "type": "object",
+        "description": "Represents a gift collection.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the Collection entity."
+          },
+          "name": {
+            "type": "object",
+            "description": "The localized names of the collection."
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "Rarity": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Rarity",
+        "type": "object",
+        "description": "Represents a gift rarity.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the Rarity entity."
+          },
+          "name": {
+            "type": "object",
+            "description": "The localized names of the rarity."
+          },
+          "color": {
+            "type": "string",
+            "description": "The color associated with the rarity."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "color"
+        ]
+      },
+      "Transaction": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Transaction",
+        "type": "object",
+        "description": "Represents a gift exchange transaction.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the Transaction entity."
+          },
+          "fromUserId": {
+            "type": "string",
+            "description": "The ID of the user giving/sending the gift."
+          },
+          "toUserId": {
+            "type": "string",
+            "description": "The ID of the user receiving the gift."
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "An array containing the IDs of both users, for security rule queries."
+          },
+          "giftId": {
+            "type": "string",
+            "description": "The ID of the gift being exchanged."
+          },
+          "deliveryStatus": {
+            "type": "string",
+            "description": "The delivery status of the gift (e.g., Pending, Delivered, Canceled)."
+          },
+          "settlementStatus": {
+            "type": "string",
+            "description": "The settlement status of the transaction (e.g., Unpaid, Paid, Canceled)."
+          },
+          "date": {
+            "type": "string",
+            "description": "The date and time of the transaction.",
+            "format": "date-time"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of transaction (e.g., exchange, gift, send)."
+          }
+        },
+        "required": [
+          "id",
+          "fromUserId",
+          "toUserId",
+          "participants",
+          "giftId",
+          "deliveryStatus",
+          "settlementStatus",
+          "date",
+          "type"
+        ]
+      },
+      "Exchange": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Exchange",
+        "type": "object",
+        "description": "Represents a gift exchange transaction.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the Exchange entity."
+          },
+          "fromId": {
+            "type": "string",
+            "description": "The ID of the transaction for the user giving/sending the gift."
+          },
+          "toId": {
+            "type": "string",
+            "description": "The ID of the transaction for the user receiving the gift."
+          },
+          "participants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "An array containing the IDs of the users from the transactions corresponding to this exchange, for security rule queries."
+          },
+          "giftId": {
+            "type": "string",
+            "description": "The ID of the gift being exchanged."
+          },
+          "date": {
+            "type": "string",
+            "description": "The date and time of the transaction.",
+            "format": "date-time"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of transaction (e.g., gift, send)."
+          },
+          "status": {
+            "type": "string",
+            "description": "The status of the exchange (e.g., pending, complete)."
+          }
+        },
+        "required": [
+          "id",
+          "fromId",
+          "toId",
+          "participants",
+          "giftId",
+          "date",
+          "type",
+          "status"
+        ]
+      },
+      "WishlistItem": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "WishlistItem",
+        "type": "object",
+        "description": "Represents an item in a user's wishlist. This is a client-side entity, stored in localStorage.",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "The ID of the user who owns the wishlist."
+          },
+          "giftIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "An array of gift IDs in the user's wishlist."
+          }
+        },
+        "required": [
+          "userId",
+          "giftIds"
+        ]
+      }
+    },
+    "auth": {
+      "providers": [
+        "anonymous"
+      ],
+      "customClaims": [
+          {
+              "name": "roleLevel",
+              "type": "numeric",
+              "description": "Provides the level of access of the user. This claim is set and managed by a secure API endpoint and is used in Firestore security rules to grant access to restricted resources."
+          }
+      ]
+    },
+    "firestore": {
+      "structure": [
+        {
+          "path": "/users/{userId}",
+          "definition": {
+            "entityName": "User",
+            "schema": {
+              "$ref": "#/entities/User"
+            },
+            "description": "Stores user profiles. User data is private and accessed via path-based ownership or by admins.",
+            "params": [
+              {
+                "name": "userId",
+                "description": "The unique identifier of the user."
+              }
+            ]
+          }
+        },
+        {
+          "path": "/gifts/{giftId}",
+          "definition": {
+            "entityName": "Gift",
+            "schema": {
+              "$ref": "#/entities/Gift"
+            },
+            "description": "Stores the gift catalog. Gifts can be listed by any user, but only modified by admins.",
+            "params": [
+              {
+                "name": "giftId",
+                "description": "The unique identifier of the gift."
+              }
+            ]
+          }
+        },
+        {
+          "path": "/collections/{collectionId}",
+          "definition": {
+            "entityName": "Collection",
+            "schema": {
+              "$ref": "#/entities/Collection"
+            },
+            "description": "Stores the gift collections. Public data, modifiable by admins.",
+            "params": [
+              {
+                "name": "collectionId",
+                "description": "The unique identifier of the collection."
+              }
+            ]
+          }
+        },
+        {
+          "path": "/rarities/{rarityId}",
+          "definition": {
+            "entityName": "Rarity",
+            "schema": {
+              "$ref": "#/entities/Rarity"
+            },
+            "description": "Stores the gift rarities. Public data, modifiable by admins.",
+            "params": [
+              {
+                "name": "rarityId",
+                "description": "The unique identifier of the rarity."
+              }
+            ]
+          }
+        },
+        {
+          "path": "/exchanges/{exchangeId}",
+          "definition": {
+            "entityName": "Exchange",
+            "schema": {
+              "$ref": "#/entities/Exchange"
+            },
+            "description": "Stores all exchanges. Read access for 'owners' (from userId) and level 1 roleLevel, read/write for roleLevel 2.",
+            "params": [
+              {
+                "name": "exchangeId",
+                "description": "The unique identifier of the exchange."
+              }
+            ]
+          }
+        },
+        {
+          "path": "/transactions/{transactionId}",
+          "definition": {
+            "entityName": "Transaction",
+            "schema": {
+              "$ref": "#/entities/Transaction"
+            },
+            "description": "Stores all transactions. Read access for 'owners' (from userId) and level 1 roleLevel, read/write for roleLevel 2.",
+            "params": [
+              {
+                "name": "transactionId",
+                "description": "The unique identifier of the transaction."
+              }
+            ]
+          }
+        }
+      ],
+      "reasoning": "The Firestore structure is designed to optimize for security, scalability, and ease of debugging. I've moved transactions to a root collection to simplify administrative queries and will rely on array-contains checks for user-specific access, a common and scalable pattern."
+    },
+    "api": {
+      "endpoints": [
+        {
+          "path": "/api/auth/login",
+          "methods": [
+            {
+              "method": "POST",
+              "description": "Authenticates a user and returns a custom Firebase token.",
+              "request": {
+                "body": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "userId": {
+                        "type": "string",
+                        "description": "The user's id."
+                      }
+                    },
+                    "required": ["userId"]
+                  }
+                }
+              },
+              "response": {
+                "200": {
+                  "description": "Authentication successful, custom token returned.",
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "token": {
+                        "type": "string",
+                        "description": "A custom Firebase authentication token."
+                      }
+                    }
+                  }
+                },
+                "400": {
+                  "description": "Bad Request."
+                },
+                "404": {
+                  "description": "User not found."
+                },
+                "500": {
+                  "description": "Internal Server Error."
+                }
+              }
+            }
+          ]
+        },
+        {
+          "path": "/api/admin/users",
+          "methods": [
+            {
+              "method": "POST",
+              "description": "Creates a new user, updates their custom claims, and stores their data in Firestore. This endpoint is protected and can only be accessed by administrators (roleLevel 2).",
+              "request": {
+                "body": {
+                  "schema": {
+                    "$ref": "#/entities/User"
+                  }
+                }
+              },
+              "response": {
+                "201": {
+                  "description": "User created successfully."
+                },
+                "400": {
+                  "description": "Bad request. Missing required fields."
+                },
+                 "403": {
+                  "description": "Forbidden. The requesting user is not an administrator."
+                }
+              }
+            }
+          ]
+        },
+        {
+          "path": "/api/admin/users/{userId}",
+          "methods": [
+            {
+              "method": "GET",
+              "description": "Retrieves an existing user, their custom claims, and their data in Firestore. This endpoint is available to all users.",
+              "request": {
+                   "params": [
+                      {
+                          "name": "userId",
+                          "description": "The unique identifier of the user to read."
+                      }
+                  ],
+                  "body": {
+                      "schema": {
+                          "$ref": "#/entities/User"
+                      }
+                  }
+              },
+              "response": {
+                "200": {
+                  "description": "User data obtained successfully."
+                },
+                "400": {
+                  "description": "Bad request. Missing required fields."
+                },
+                "403": {
+                  "description": "Forbidden. The request is not valid."
+                },
+                "404": {
+                  "description": "User not found."
+                }
+              }
+            }
+          ]
+        },
+        {
+          "path": "/api/admin/users/{userId}",
+          "methods": [
+            {
+              "method": "PUT",
+              "description": "Updates an existing user, their custom claims, and their data in Firestore. This endpoint is protected and can only be accessed by administrators (roleLevel 2).",
+              "request": {
+                   "params": [
+                      {
+                          "name": "userId",
+                          "description": "The unique identifier of the user to update."
+                      }
+                  ],
+                  "body": {
+                      "schema": {
+                          "$ref": "#/entities/User"
+                      }
+                  }
+              },
+              "response": {
+                "200": {
+                  "description": "User updated successfully."
+                },
+                "400": {
+                  "description": "Bad request. Missing required fields."
+                },
+                "403": {
+                  "description": "Forbidden. The requesting user is not an administrator."
+                },
+                "404": {
+                  "description": "User not found."
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "reasoning": "Secure, server-side API for all user management operations. This ensures that a user's `roleLevel` value is always synchronized between the Firestore database and their authentication claims. This approach improves security by preventing direct client-side database modifications and streamlines access control by allowing Firestore rules to leverage the `isAdmin` custom claim."
+    }
+  }
