@@ -1,0 +1,29 @@
+
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #F3F4F6;
+    --foreground: #1F2937;
+    --primary: #1E40AF;
+    --primary-foreground: #FFFFFF;
+    --accent: #3B82F6;
+    --accent-foreground: #FFFFFF;
+    --border: #D1D5DB;
+    --input: #D1D5DB;
+    --ring: #9CA3AF;
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}

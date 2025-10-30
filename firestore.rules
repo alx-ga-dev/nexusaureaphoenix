@@ -1,0 +1,48 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roleLevel == 2;
+    }
+
+    function isEditor() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roleLevel == 1;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    match /gifts/{giftId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /collections/{collectionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /rarities/{rarityId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /exchanges/{exchangeId} {
+      allow read: if isOwner(resource.data.fromUserId) || isEditor() || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isOwner(resource.data.fromUserId) || isEditor() || isAdmin();
+      allow write: if isAdmin();
+    }
+  }
+}
