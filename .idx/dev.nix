@@ -17,6 +17,7 @@
     "bradlc.vscode-tailwindcss"
     "dbaeumer.vscode-eslint"
     "google.gemini-cli-vscode-ide-companion"
+    "csstools.postcss"
   ];
 
   # Workspace lifecycle hooks
