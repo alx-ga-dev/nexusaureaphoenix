@@ -54,6 +54,8 @@ NexusAurae is a webapp designed to facilitate a community-based gift exchange pr
 
 ##### **3\.2\. Management Functions**
 
+* This page should be available for Managers (roleLevel = 1) and Administrators (roleLevel = 2).
+* The APIs and database permissions required for this page should be accesible and allowed for both roles. 
 * **Payment & Delivery:**
     * This page should display a form to request "From/To" value (dropdown), user name (text, with type-ahead functionality) and action type (dropdown, "Payment", "Deliver" and "Cancel"). The status value should be assumed to be "Pending".
     * When the form is submitted a table with the same columns as the "Pending Transactions" page should be displayed but without the "Actions" column. Instead, a checkbox should be displayed to be able to select the transactions to be processed.
@@ -66,21 +68,26 @@ NexusAurae is a webapp designed to facilitate a community-based gift exchange pr
 
 ##### **3\.3\. Administrative Functions**
 
+* The following pages are only available for Administrators (roleLevel = 2)
 * **Users (CRUD):**  
-  * Admins can view a list of all users.  
-  * Admins can create new user profiles.  
-  * Admins can edit existing users' names and types.  
-  * Admins can delete users.  
-  * Admins can generate a QR code or prepare to write an NFC tag for any user.  
+    * This page should display a table with all of the users with the following columns: user id ("Id"), user name ("Name"), type ("Type"), roleLevel ("Role") and action ("Action").
+    * The page should also feature a form with a text box for the user name and drop-downs for type (values "Blue" and "Pink") and role (values "0 - Standard", "1 - Manager", "2 - Administrator") that would allow the admin to filter the table according to any of the columns.
+    * The form to filter should update in real time as the user types in the "User" field, or select values in the dropdowns.  
+    * Clicking on the action column should open a menu with the following options: "NFC Tag", "QR Code", "Edit", "Delete".
+    * Selecting the "NFC Tag" option should open a dialog to wait for the user to prepare a NFC tag and, when detected, write the user id corresponding to the row to the tag. (is this possible using the nfc api?)
+    * Selecting the "QR Code" option should open a modal window with the QR code image corresponding to the user id from the corresponding row. The modal window should have a button to allow the user to copy the QR code to their clipboard and another button to allow the user to download the image to their device or computer.  
+    * Selecting the "Delete" option should open a confirmation dialog and, if confirmed, delete the user record.  
+    * Clicking on the "Edit" option should open a modal window with the user details in a form to be able to edit the values. When the form is submitted, the user record should be updated.
+    * An "Add" button should be available to be able to create a new user. A modal window should open with the form to create a new user. When the form is submitted, the user record should be created.  
 * **Gifts (CRUD):**  
-  * Admins can view, create, edit, and delete gifts in the catalog.  
-  * Gift properties include localized names, collection, rarity, image URL, and an AI hint for the image.  
+    * Similar to the users page, this page should display a table with all of the gifts with the following columns: gift id ("Id"), gift name ("Name"), collection ("Collection"), rarity ("Rarity") and image url ("Image").
+    * The page should also feature a form to filter the table according to any of the columns.
+    * For this table, the "Action" menu should display the following options: "Edit", "Delete".  
+    * Similar to the users page, an "Add" button should be available to add new gifts.  
 * **Collections (CRUD):**  
-  * Admins can view, create, edit, and delete gift collections.  
-  * Collections have localized names.  
+  * Similar to the gifts page, this page should contain the filter form, a button to add new records and display a table with all of the collection's properties as columns, with actions to edit and delete records.  
 * **Rarities (CRUD):**  
-  * Admins can view, create, edit, and delete gift rarities.  
-  * Rarities have localized names and an associated display color.  
+  * Similar to the gifts page, this page should contain the filter form, a button to add new records and display a table with all of the collection's properties as columns, with actions to edit and delete records.  
 
 
 ##### **3\.4\. Gift Exchange & Transaction Flow**
@@ -105,7 +112,7 @@ All application data is stored and managed in a Google Firestore database. The s
 * `/users/{userId}`: Stores `User` documents.  
     * **User Schema:** `id`, `name`, `type` ('Blue' or 'Pink'), `roleLevel` (integer).  
 * `/gifts/{giftId}`: Stores `Gift` documents.  
-    * **Gift Schema:** `id`, `name` (localized object), `collection` (string), `rarity` (string), `imageUrl`, `imageHint`.  
+    * **Gift Schema:** `id`, `name` (localized object), `collection` (string), `rarity` (string), `imageUrl`.  
 * `/collections/{collectionId}`: Stores `Collection` documents.  
     * **Collection Schema:** `id`, `name` (localized object).  
 * `/rarities/{rarityId}`: Stores `Rarity` documents.  
@@ -237,7 +244,9 @@ To ensure a secure and reliable setup process, all database initialization and a
 The script should be located at `scripts/admin-tool.ts`. It requires `ts-node` to be installed.
 
 **Installation:**
-If you don't have `ts-node`, you can install it globally:
+If you don't have `ts-node`, you can add it as a dev dependency to the project's package.json for better version consistency across development environments.
+
+Alterntatively, it can be installed globally, not recommended, with the following command:
 ```bash
 npm install -g ts-node
 ```

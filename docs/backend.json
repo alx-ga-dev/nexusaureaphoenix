@@ -18,15 +18,16 @@
             "type": "string",
             "description": "The type of user (e.g., Blue, Pink)."
           },
-          "isAdmin": {
-            "type": "boolean",
-            "description": "Indicates if the user has administrative privileges."
+          "roleLevel": {
+            "type": "numeric",
+            "description": "Indicates the level of access of the user (role)."
           }
         },
         "required": [
           "id",
           "name",
-          "type"
+          "type",
+          "roleLevel"
         ]
       },
       "Gift": {
@@ -507,6 +508,6 @@
           ]
         }
       ],
-      "reasoning": "Secure, server-side API for all user management operations. This ensures that a user's `roleLevel` value is always synchronized between the Firestore database and their authentication claims. This approach improves security by preventing direct client-side database modifications and streamlines access control by allowing Firestore rules to leverage the `isAdmin` custom claim."
+      "reasoning": "Secure, server-side API for all user management operations. This ensures that a user's `roleLevel` value is always synchronized between the Firestore database and their authentication claims. This approach improves security by preventing direct client-side database modifications and streamlines access control by allowing Firestore rules to leverage the `´roleLevel` custom claim."
     }
   }
