@@ -2,7 +2,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { firebaseAdminAuth, firebaseAdminFirestore } from '@/lib/firebase-admin';
 
-async function getUserIdAndProviderFromToken(request: NextRequest) {
+async function getUserIdAndProviderFromToken(request: NextRequest): Promise<string | null> {
     console.log('[/api/auth/user] Attempting to verify auth token...');
     const header = request.headers.get('authorization');
     
@@ -28,9 +28,8 @@ async function getUserIdAndProviderFromToken(request: NextRequest) {
         // CORRECT: Using the admin auth service
         const decodedToken = await firebaseAdminAuth.verifyIdToken(idToken);
         console.log('[/api/auth/user] Successfully verified ID Token for UID:', decodedToken.uid);
-        const isAnonymous = decodedToken.firebase.sign_in_provider === 'anonymous';
 
-        return { uid: decodedToken.uid, isAnonymous };
+        return decodedToken.uid;
     } catch (error) {
         console.error('[/api/auth/user] CRITICAL: Error verifying auth token:', error);
         if (error instanceof Error && 'code' in error) {
@@ -48,7 +47,7 @@ export async function GET(request: NextRequest) {
         if (!tokenInfo) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
-        const { uid, isAnonymous } = tokenInfo;
+        const uid = tokenInfo;
 
         console.log(`[/api/auth/user] Fetching user data for UID: ${uid}`);
         const userRef = firebaseAdminFirestore.collection('users').doc(uid);
@@ -67,7 +66,7 @@ export async function GET(request: NextRequest) {
         }
 
         console.log(`[/api/auth/user] Successfully fetched user data for UID: ${uid}`);
-        return NextResponse.json({ id: userSnap.id, ...userData, isAnonymous });
+        return NextResponse.json({ id: userSnap.id, ...userData });
 
     } catch (error) {
         console.error('[/api/auth/user] Internal Server Error while fetching user:', error);

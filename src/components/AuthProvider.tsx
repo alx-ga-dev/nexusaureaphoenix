@@ -16,7 +16,6 @@ interface AuthContextType {
   error: string | null;
   isAdmin: boolean;
   isLoggedIn: boolean;
-  isAnonymous: boolean;
   signIn: (customToken: string, userData: any) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -52,8 +51,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-
-  const isAnonymous = userAuth ? userAuth.isAnonymous : false;
 
   // The new signIn function accepts the pre-fetched user data.
   // This is the key to the performance improvement on initial login.
@@ -126,7 +123,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const isAdmin = userData?.roleLevel >= ADMIN_LEVEL;
   // The definition of isLoggedIn now correctly depends on having user data.
-  const isLoggedIn = !!userAuth && !!userData && !isAnonymous;
+  const isLoggedIn = !!userAuth && !!userData;
 
   const value = {
     userAuth,
@@ -136,7 +133,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     error,
     isAdmin,
     isLoggedIn,
-    isAnonymous,
     signIn,
     logout,
   };
