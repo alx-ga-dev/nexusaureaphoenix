@@ -14,15 +14,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/components/AuthProvider';
-import { initiateAnonymousSignIn, initiateUserIdSignIn } from '@/lib/non-blocking-login';
+import { loginAndGetUser } from '@/actions/authActions';
+import { DEFAULT_USER_ID } from '@/lib/constants';
 
 export default function CustomLoginPage() {
   const router = useRouter();
-  // Destructure all relevant states from useAuth
-  const { firebaseUser, userData, login, loading, error } = useAuth();
+  const { signIn, isLoggedIn, loading, error } = useAuth(); // Simplified useAuth
   const [activeScan, setActiveScan] = useState<'NFC' | 'QR' | null>(null);
   const [isDebugModalOpen, setIsDebugModalOpen] = useState(false);
-  const [debugUserId, setdebugUserId] = useState('');
+  const [debugUserId, setDebugUserId] = useState('');
   const [nfcSupported, setNfcSupported] = useState(false);
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -34,59 +34,66 @@ export default function CustomLoginPage() {
   }, []);
 
   useEffect(() => {
-    // Only redirect if not loading AND user is authenticated AND user data is fetched AND no error
-    if (!loading && firebaseUser && userData && !error) {
-      console.log('[LoginPage] Auth state resolved and user data available, redirecting to dashboard.');
+    // Redirect if the user is already logged in.
+    // This is now much simpler.
+    if (isLoggedIn) {
       router.push('/dashboard');
-    } else if (!loading && error) {
-        console.error("[LoginPage] Auth state resolved with an error. Displaying toast.", error.message);
-        toast({
-            variant: "destructive",
-            title: "Login Failed",
-            description: error.message || "An unknown error occurred.",
-        });
     }
-  }, [loading, firebaseUser, userData, error, router, toast]);
+  }, [isLoggedIn, router]);
 
-  const handleLoginAttempt = useCallback(async (loginFn: () => Promise<string>) => {
+  useEffect(() => {
+    // Handle login errors
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: error,
+      });
+    }
+  }, [error, toast]);
+
+  const handleLoginAttempt = useCallback(async (uid: string) => {
+    if (loading) return;
+
     toast({
       title: t('loggingInToast'),
       description: t('loggingInToastDesc'),
     });
-    try {
-      const customToken = await loginFn(); // loginFn now returns the custom token
-      await login(customToken); // AuthProvider handles signInWithCustomToken
-    } catch (err: any) {
-      console.error(err);
-      // Error will be caught by AuthProvider's useEffect and handled there (e.g. logout + toast)
-    }
-  }, [login, toast, t]);
 
+    const result = await loginAndGetUser(uid);
+
+    if (result.status === 'success') {
+      // Pass both token and user data to the new signIn function
+      await signIn(result.customToken, result.userData);
+      // The useEffect for isLoggedIn will handle the redirect
+    } else {
+      // The error useEffect will display the toast
+      console.error(result.message);
+    }
+  }, [signIn, loading, toast, t]);
 
   const handleLogin = (type: 'NFC' | 'QR' | 'default') => {
-    // Buttons should be disabled based on `loading` state from useAuth
     if (loading) return;
 
     if (type === 'NFC' || type === 'default') {
-        if (type === 'NFC') {
-            setActiveScan('NFC');
-            toast({
-                title: "NFC Scan",
-                description: `Simulating NFC scan. Logging in as default user.`
-            });
-        }
-        handleLoginAttempt(initiateAnonymousSignIn);
+      if (type === 'NFC') {
+        setActiveScan('NFC');
+        toast({
+            title: "NFC Scan",
+            description: `Simulating NFC scan. Logging in as default user.`
+        });
+      }
+      handleLoginAttempt(DEFAULT_USER_ID);
     } else if (type === 'QR') {
-        setActiveScan('QR');
+      setActiveScan('QR');
     }
   };
   
   const handleQrScanSuccess = useCallback((data: string | null) => {
-    if (data && typeof data === 'string' && data.trim() !== '') {
-      setActiveScan(null);
-      handleLoginAttempt(() => initiateUserIdSignIn(data));
+    setActiveScan(null);
+    if (data && data.trim() !== '') {
+      handleLoginAttempt(data);
     } else {
-      console.log("QR Scan returned empty or invalid data. Ignoring.");
       toast({
         variant: "destructive",
         title: t('invalidQrToast'),
@@ -96,9 +103,9 @@ export default function CustomLoginPage() {
   }, [handleLoginAttempt, toast, t]);
 
   const handleManualLogin = () => {
-    if (debugUserId && !loading) { // Also disable if loading
-        setIsDebugModalOpen(false);
-        handleLoginAttempt(() => initiateUserIdSignIn(debugUserId));
+    if (debugUserId && !loading) {
+      setIsDebugModalOpen(false);
+      handleLoginAttempt(debugUserId);
     }
   }
 
@@ -233,7 +240,7 @@ export default function CustomLoginPage() {
                     <Input
                         id="userId"
                         value={debugUserId}
-                        onChange={(e) => setdebugUserId(e.target.value)}
+                        onChange={(e) => setDebugUserId(e.target.value)}
                         className="col-span-3"
                     />
                 </div>

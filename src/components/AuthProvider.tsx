@@ -2,22 +2,22 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { onAuthStateChanged, User, signOut, signInWithCustomToken } from 'firebase/auth';
+import { onAuthStateChanged, User, signOut, signInWithCustomToken, getIdToken } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { firebaseAuth } from '@/lib/firebase';
-import { useUser } from '@/hooks/use-user';
 import { ADMIN_LEVEL } from '@/lib/constants';
 
+// The 'token' is back in the context, as it's needed for API calls.
 interface AuthContextType {
-  firebaseUser: User | null;
+  userAuth: User | null;
   userData: any;
-  token: string | null;
+  token: string | null; // <-- THIS IS THE FIX
   loading: boolean;
-  error: Error | null;
+  error: string | null;
   isAdmin: boolean;
   isLoggedIn: boolean;
   isAnonymous: boolean;
-  login: (customToken: string) => Promise<void>;
+  signIn: (customToken: string, userData: any) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -31,79 +31,113 @@ export const useAuth = () => {
   return context;
 };
 
+// This is a new helper function to fetch user data on session restoration (e.g., page refresh)
+async function fetchUserData(token: string) {
+    const response = await fetch('/api/auth/user', {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        },
+    });
+    if (!response.ok) {
+        throw new Error("Failed to fetch user data on session restore.");
+    }
+    return response.json();
+}
+
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [authUser, setAuthUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [loadingAuth, setLoadingAuth] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [userAuth, setUserAuth] = useState<User | null>(null);
+  const [userData, setUserData] = useState<any | null>(null);
+  const [token, setToken] = useState<string | null>(null); // Token state is back
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const isAnonymous = authUser ? authUser.isAnonymous : false;
+  const isAnonymous = userAuth ? userAuth.isAnonymous : false;
 
-  const { user: profileData, error: userError, isLoading: userLoading } = useUser(token, {
-    enabled: !!token,
-  });
-
-  const login = async (customToken: string) => {
+  // The new signIn function accepts the pre-fetched user data.
+  // This is the key to the performance improvement on initial login.
+  const signIn = async (customToken: string, fetchedUserData: any) => {
+    setLoading(true);
+    setError(null);
     try {
       const userCredential = await signInWithCustomToken(firebaseAuth, customToken);
-      setAuthUser(userCredential.user);
       const idToken = await userCredential.user.getIdToken();
+      setUserAuth(userCredential.user);
       setToken(idToken);
+      // We set the user data that we already fetched from the server action.
+      // This avoids a redundant client-side fetch.
+      setUserData(fetchedUserData);
     } catch (err: any) {
-      setError(err);
-      throw err;
+      console.error("[AuthProvider] signIn error:", err);
+      setError(err.message || "An unknown error occurred during sign-in.");
+      setUserAuth(null);
+      setUserData(null);
+      setToken(null);
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = useCallback(async () => {
+    setLoading(true);
     await signOut(firebaseAuth);
-    setAuthUser(null);
+    setUserAuth(null);
+    setUserData(null);
     setToken(null);
+    setError(null);
+    setLoading(false);
     router.push('/');
   }, [router]);
 
+  // onAuthStateChanged handles session restoration (e.g. page refresh)
+  // and token refresh.
   useEffect(() => {
-    if (userError) {
-      console.error('[AuthProvider] Error fetching user data, logging out:', userError);
-      logout();
-    }
-  }, [userError, logout]);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(firebaseAuth, async (currentUser) => {
-      setAuthUser(currentUser);
-      if (currentUser) {
-        try {
-          const idToken = await currentUser.getIdToken();
-          setToken(idToken);
-        } catch (err) {
-          console.error('[AuthProvider] Error getting ID token:', err);
-          setToken(null);
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
+      if (user) {
+        const idToken = await user.getIdToken();
+        setUserAuth(user);
+        setToken(idToken);
+        // If userData is not already loaded (i.e., this is a page refresh, not a fresh login),
+        // then we fetch it using the token.
+        if (!userData) {
+            try {
+                const fetchedData = await fetchUserData(idToken);
+                setUserData(fetchedData);
+            } catch (e: any) {
+                console.error("Session restore error:", e);
+                setError(e.message);
+                // Logout if we have a firebase user but can't get their data
+                await logout();
+            }
         }
       } else {
+        // User is not logged in.
+        setUserAuth(null);
+        setUserData(null);
         setToken(null);
       }
-      setLoadingAuth(false);
+      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+    // We add `logout` and `userData` to deps to handle the session restore case correctly.
+  }, [logout, userData]);
 
-  const isLoading = loadingAuth || (!!authUser && userLoading);
-  const isAdmin = profileData?.roleLevel >= ADMIN_LEVEL;
-  const isLoggedIn = !!profileData && !isAnonymous;
+  const isAdmin = userData?.roleLevel >= ADMIN_LEVEL;
+  // The definition of isLoggedIn now correctly depends on having user data.
+  const isLoggedIn = !!userAuth && !!userData && !isAnonymous;
 
   const value = {
-    firebaseUser: authUser,
-    userData: profileData,
-    token,
-    loading: isLoading,
-    error: error || userError,
+    userAuth,
+    userData,
+    token, // The token is now provided to the rest of the app
+    loading,
+    error,
     isAdmin,
     isLoggedIn,
     isAnonymous,
-    login,
+    signIn,
     logout,
   };
 
