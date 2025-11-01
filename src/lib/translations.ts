@@ -156,10 +156,10 @@ export const translations = {
   
       // --- New Wish List Page Translations ---
       wishListTitle: "My Wish List",
-      wishListSubTitle: "Your desired gifts and AI-powered suggestions.",
+      wishListSubTitle: "Your desired gifts.",
       currentWishlistTitle: "Your Current Wish List",
       emptyWishList: "Your Wish List is Empty",
-      emptyWishListSubtext: "Add gifts from the catalog or get AI suggestions!",
+      emptyWishListSubtext: "Add gifts from the catalog to your Wish List!",
       generatingSuggestions: "Generating Suggestions...",
       pleaseWait: "Please wait...",
       generateSuggestions: "Generate AI Suggestions",
@@ -533,10 +533,10 @@ export const translations = {
   
       // --- New Wish List Page Translations ---
       wishListTitle: "Mi Lista de Deseos",
-      wishListSubTitle: "Tus regalos deseados y sugerencias impulsadas por IA.",
+      wishListSubTitle: "Tu lista de regalos deseados.",
       currentWishlistTitle: "Tu Lista de Deseos Actual",
       emptyWishList: "Tu Lista de Deseos está Vacía",
-      emptyWishListSubtext: "¡Añade regalos del catálogo u obtén sugerencias de IA!",
+      emptyWishListSubtext: "¡Añade regalos del catálogo a tu lista de deseos!",
       generatingSuggestions: "Generando Sugerencias...",
       pleaseWait: "Por favor, espera...",
       generateSuggestions: "Generar Sugerencias de IA",
