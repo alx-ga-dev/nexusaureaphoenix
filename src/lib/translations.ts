@@ -209,7 +209,11 @@ export const translations = {
       editUserCardTitle: "Edit User Details",
       editUserCardDesc: "Update the information for {name}.",
       returnToUsers: "Back to Users",
-      isAdminLabel: "Is Administrator",
+      roleLabel: 'Role',
+      selectRolePlaceholder: 'Select a role',
+      roleStandard: 'Standard',
+      roleManager: 'Manager',
+      roleAdmin: 'Admin',
   
       // --- User Card Translations ---
       viewProfileButton: "View Profile",
@@ -593,8 +597,12 @@ export const translations = {
       editUserCardTitle: "Editar Detalles del Usuario",
       editUserCardDesc: "Actualiza la información de {name}.",
       returnToUsers: "Volver a Usuarios",
-      isAdminLabel: "¿Es Administrador?",
-  
+      roleLabel: 'Rol',
+      selectRolePlaceholder: 'Selecciona un rol',
+      roleStandard: 'Estándar',
+      roleManager: 'Gerente',
+      roleAdmin: 'Administrador',
+
       // --- Traducciones de Tarjeta de Usuario ---
       viewProfileButton: "Ver Perfil",
       pendingTransactions: "Transacciones Pendientes",
