@@ -1,73 +1,82 @@
 
 // src/app/dashboard/catalog/page.tsx
-// (No 'use client' directive here)
+'use server';
 
-// Imports for Server Component
 import { firebaseAdminAuth, firebaseAdminFirestore } from '@/lib/firebase-admin';
 import { cookies } from 'next/headers';
 import type { Gift, Collection, Rarity, User } from '@/lib/types';
-import CatalogPageClient from './catalog-page-client'; // New Client Component
-import { redirect } from 'next/navigation';
-import { DEFAULT_USER_ID } from '@/lib/constants';
+import CatalogPageClient from './catalog-page-client';
+import { getOrSetCache } from '@/lib/cache';
 
-// --- Server-side Data Fetching Function ---
+// --- Server-side Data Fetching Function with Caching ---
 async function fetchCatalogData() {
   const sessionCookie = (await cookies()).get('session')?.value || '';
 
-  if (!sessionCookie) {
-      console.log('[CatalogPage Server] No session cookie found, redirecting to login.');
-      redirect('/'); // Redirect to login if no session
-  }
-
-  let firebaseUser: { uid: string; isAnonymous: boolean; } | null = null;
-  let userData: User | null = null;
-
   try {
-      const decodedClaims = await firebaseAdminAuth.verifySessionCookie(sessionCookie, true);
-      firebaseUser = { uid: decodedClaims.uid, isAnonymous: decodedClaims.firebase.sign_in_provider === 'anonymous' };
+    const decodedClaims = await firebaseAdminAuth.verifySessionCookie(sessionCookie, true);
+    const userId = decodedClaims.uid;
 
-      // Fetch user data from Firestore
-      const userId = firebaseUser.isAnonymous ? DEFAULT_USER_ID : firebaseUser.uid;
-      const userDoc = await firebaseAdminFirestore.collection('users').doc(userId).get();
+    // --- Fetch all data in parallel using the cache ---
+    const [currentUser, gifts, allCollections, allRarities] = await Promise.all([
+      getOrSetCache(`user:${userId}`, async () => {
+        const userDoc = await firebaseAdminFirestore.collection('users').doc(userId).get();
+        if (!userDoc.exists) return null;
+        return { id: userDoc.id, ...(userDoc.data() as Omit<User, 'id'>) };
+      }, 60), // Cache user data for 60 seconds
 
-      if (!userDoc.exists) {
-          console.warn(`[CatalogPage Server] Authenticated user (UID: ${userId}) has no Firestore profile. Redirecting to login.`);
-          redirect('/'); 
-      }
-      userData = { id: userDoc.id, ...(userDoc.data() as Omit<User, 'id'>) };
+      getOrSetCache('gifts:all', async () => {
+        console.log('[Cache Miss] Fetching all gifts');
+        const snapshot = await firebaseAdminFirestore.collection('gifts').get();
+        return snapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as Omit<Gift, 'id'>) }));
+      }, 0), // On-demand revalidation
 
-      // --- Fetch all catalog-specific data ---
-      const [giftsSnapshot, collectionsSnapshot, raritiesSnapshot] = await Promise.all([
-          firebaseAdminFirestore.collection('gifts').get(),
-          firebaseAdminFirestore.collection('collections').get(),
-          firebaseAdminFirestore.collection('rarities').get(),
-      ]);
+      getOrSetCache('collections:all', async () => {
+        console.log('[Cache Miss] Fetching all collections');
+        const snapshot = await firebaseAdminFirestore.collection('collections').get();
+        return snapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as Omit<Collection, 'id'>) }));
+      }, 0), // On-demand revalidation
 
-      const gifts = giftsSnapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as Omit<Gift, 'id'>) }));
-      const allCollections = collectionsSnapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as Omit<Collection, 'id'>) }));
-      const allRarities = raritiesSnapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as Omit<Rarity, 'id'>) }));
+      getOrSetCache('rarities:all', async () => {
+        console.log('[Cache Miss] Fetching all rarities');
+        const snapshot = await firebaseAdminFirestore.collection('rarities').get();
+        return snapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as Omit<Rarity, 'id'>) }));
+      }, 0) // On-demand revalidation
+    ]);
 
+    if (!currentUser) {
       return {
-          isAuthenticated: true,
-          currentUser: userData,
-          gifts,
-          allCollections,
-          allRarities,
-          error: null
+        currentUser: null,
+        gifts: [],
+        allCollections: [],
+        allRarities: [],
+        error: `User ID ${userId} has no profile.`
       };
+    }
+
+    return {
+      currentUser,
+      gifts: gifts || [],
+      allCollections: allCollections || [],
+      allRarities: allRarities || [],
+      error: null
+    };
 
   } catch (error: any) {
-      console.error('[CatalogPage Server] Authentication or data fetching failed:', error);
-      (await cookies()).delete('session');
-      redirect('/'); // Redirect to login on any server-side auth/data error
+    console.error('[CatalogPage Server] Authentication or data fetching failed:', error);
+    (await cookies()).delete('session');
+    return {
+      currentUser: null,
+      gifts: [],
+      allCollections: [],
+      allRarities: [],
+      error: 'Authentication or data fetching failed. Please try logging in again.'
+    };
   }
 }
 
 export default async function CatalogPage() {
   const data = await fetchCatalogData();
 
-  // If redirected, this part won't execute.
-  // Pass the fetched data to a Client Component for interaction
   return (
     <CatalogPageClient
       initialCurrentUser={data.currentUser}
