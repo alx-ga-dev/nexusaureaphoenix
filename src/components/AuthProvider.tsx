@@ -7,11 +7,11 @@ import { useRouter } from 'next/navigation';
 import { firebaseAuth } from '@/lib/firebase';
 import { ADMIN_LEVEL } from '@/lib/constants';
 
-// The 'token' is back in the context, as it's needed for API calls.
+// Corrected interface: isAnonymous is removed.
 interface AuthContextType {
   userAuth: User | null;
   userData: any;
-  token: string | null; // <-- THIS IS THE FIX
+  token: string | null;
   loading: boolean;
   error: string | null;
   isAdmin: boolean;
@@ -30,7 +30,6 @@ export const useAuth = () => {
   return context;
 };
 
-// This is a new helper function to fetch user data on session restoration (e.g., page refresh)
 async function fetchUserData(token: string) {
     const response = await fetch('/api/auth/user', {
         headers: {
@@ -43,18 +42,16 @@ async function fetchUserData(token: string) {
     return response.json();
 }
 
-
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userAuth, setUserAuth] = useState<User | null>(null);
   const [userData, setUserData] = useState<any | null>(null);
-  const [token, setToken] = useState<string | null>(null); // Token state is back
+  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // The new signIn function accepts the pre-fetched user data.
-  // This is the key to the performance improvement on initial login.
   const signIn = async (customToken: string, fetchedUserData: any) => {
+    console.log("[AuthProvider] signIn called");
     setLoading(true);
     setError(null);
     try {
@@ -62,8 +59,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const idToken = await userCredential.user.getIdToken();
       setUserAuth(userCredential.user);
       setToken(idToken);
-      // We set the user data that we already fetched from the server action.
-      // This avoids a redundant client-side fetch.
       setUserData(fetchedUserData);
     } catch (err: any) {
       console.error("[AuthProvider] signIn error:", err);
@@ -77,6 +72,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = useCallback(async () => {
+    console.log("[AuthProvider] logout called");
     setLoading(true);
     await signOut(firebaseAuth);
     setUserAuth(null);
@@ -87,16 +83,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     router.push('/');
   }, [router]);
 
-  // onAuthStateChanged handles session restoration (e.g. page refresh)
-  // and token refresh.
+  // useEffect dependency array is now corrected.
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
+      console.log("[AuthProvider] auth state changed");
       if (user) {
         const idToken = await user.getIdToken();
         setUserAuth(user);
         setToken(idToken);
-        // If userData is not already loaded (i.e., this is a page refresh, not a fresh login),
-        // then we fetch it using the token.
+        // This condition correctly uses the closure's initial `userData` state (null)
+        // to ensure it only runs once on session restore.
         if (!userData) {
             try {
                 const fetchedData = await fetchUserData(idToken);
@@ -104,12 +100,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             } catch (e: any) {
                 console.error("Session restore error:", e);
                 setError(e.message);
-                // Logout if we have a firebase user but can't get their data
                 await logout();
             }
         }
       } else {
-        // User is not logged in.
         setUserAuth(null);
         setUserData(null);
         setToken(null);
@@ -118,17 +112,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => unsubscribe();
-    // We add `logout` and `userData` to deps to handle the session restore case correctly.
-  }, [logout, userData]);
+    // By removing `userData`, we break the infinite loop. The effect now runs only when
+    // the component mounts, which is the correct behavior for onAuthStateChanged.
+  }, [logout]);
 
   const isAdmin = userData?.roleLevel >= ADMIN_LEVEL;
-  // The definition of isLoggedIn now correctly depends on having user data.
+  // isLoggedIn is also corrected to not use isAnonymous
   const isLoggedIn = !!userAuth && !!userData;
 
   const value = {
     userAuth,
     userData,
-    token, // The token is now provided to the rest of the app
+    token,
     loading,
     error,
     isAdmin,

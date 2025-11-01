@@ -27,6 +27,8 @@ export default function CustomLoginPage() {
   const { t } = useTranslation();
   const { toast } = useToast();
 
+  console.log("[LoginPage] CustomLoginPage called.");
+
   useEffect(() => {
     if (typeof window !== 'undefined' && 'NDEFReader' in window) {
       setNfcSupported(true);
@@ -35,7 +37,7 @@ export default function CustomLoginPage() {
 
   useEffect(() => {
     // Redirect if the user is already logged in.
-    // This is now much simpler.
+    console.log("[LoginPage] Checking if user is already logged in...");
     if (isLoggedIn) {
       router.push('/dashboard');
     }
@@ -53,6 +55,7 @@ export default function CustomLoginPage() {
   }, [error, toast]);
 
   const handleLoginAttempt = useCallback(async (uid: string) => {
+    console.log("[LoginPage] handleLoginAttempt called...");
     if (loading) return;
 
     toast({
@@ -116,7 +119,7 @@ export default function CustomLoginPage() {
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
-        viewBox="0 0 24"
+        viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
