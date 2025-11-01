@@ -362,7 +362,7 @@ export default function ManagementReportsClient({
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             {noActions && <DropdownMenuItem disabled>{t('noActionsAvailable')}</DropdownMenuItem>}
-                            {canSettle && <DropdownMenuItem onClick={() => handleActionClick('Settle', tx.id)}>{t('settleAction')}</DropdownMenuItem>}
+                            {canSettle && <DropdownMenuItem onClick={() => handleActionClick('Settle', tx.id)}>{t('payAction')}</DropdownMenuItem>}
                             {canDeliver && <DropdownMenuItem onClick={() => handleActionClick('Deliver', tx.id)}>{t('deliverAction')}</DropdownMenuItem>}
                             {canCancel && <DropdownMenuItem onClick={() => handleActionClick('Cancel', tx.id)}>{t('cancelAction')}</DropdownMenuItem>}
                           </DropdownMenuContent>
