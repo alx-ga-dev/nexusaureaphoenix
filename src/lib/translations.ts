@@ -1,7 +1,7 @@
 export const translations = {
     en: {
       // --- New AppShell & Core Navigation Translations ---
-      appName: "GiftExchangeHub",
+      appName: "Nexus Aurae",
       preparingDashboard: "Preparing your dashboard.",
       
       userNotFoundToast: "User Not Found",
@@ -52,7 +52,7 @@ export const translations = {
       giftSentToast: "Gift Sent!",
       giftSentToastDesc: "{giftName} has been sent to {userName}.",
   
-      loginTitle: "GiftExchangeHub",
+      loginTitle: "Nexus Aurae",
       loginSubTitle: "Sign in to exchange and collect unique gifts.",
       loginButton: "Log In with NFC",
       loginQrButton: "Log in with QR Code",
@@ -384,7 +384,7 @@ export const translations = {
     },
     es: {
       // --- New AppShell & Core Navigation Translations ---
-      appName: "GiftExchangeHub",
+      appName: "Nexus Aurae",
       preparingDashboard: "Preparando tu panel de control.",
       
       userNotFoundToast: "Usuario No Encontrado",
@@ -436,7 +436,7 @@ export const translations = {
       giftSentToast: "¡Regalo Enviado!",
       giftSentToastDesc: "{giftName} ha sido enviado a {userName}.",
    
-      loginTitle: "GiftExchangeHub",
+      loginTitle: "Nexus Aurae",
       loginSubTitle: "Inicia sesión para intercambiar y coleccionar regalos únicos.",
       loginButton: "Iniciar Sesión con NFC",
       loginQrButton: "Iniciar sesión con QR",
