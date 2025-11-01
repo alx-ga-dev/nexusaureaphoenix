@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { AuthProvider } from '@/components/AuthProvider';
 
 export const metadata: Metadata = {
-  title: 'GiftExchangeHub',
+  title: 'Nexus Aurae',
   description: 'An NFC-powered gift exchange platform.',
 };
 

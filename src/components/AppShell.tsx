@@ -312,7 +312,7 @@ const AppLayout = ({ userData, children }: { userData: UserType, children: React
         { href: '/dashboard/wish-list', icon: ScrollText, label: t('navWishList') },
     ];
     const operationsNavItems = [
-      { href: '/operations/deliver-pay', icon: ClipboardList, label: t('navDeliverPay') },
+      { href: '/operations/pay-deliver', icon: ClipboardList, label: t('navDeliverPay') },
     ];
     const adminNavItems = [
         { href: '/admin/reports', icon: FileText, label: t('navReports') },
