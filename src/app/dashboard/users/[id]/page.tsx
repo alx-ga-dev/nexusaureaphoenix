@@ -40,7 +40,7 @@ async function fetchUserProfileData(profileUserId: string) {
       }, 0), // On-demand revalidation for all gifts
 
       getOrSetCache(`transactions:gifted:${profileUserId}`, async () => {
-        const snapshot = await firebaseAdminFirestore.collection('transactions').where('toUserId', '==', profileUserId).where('deliveryStatus', '==', 'Delivered').get();
+        const snapshot = await firebaseAdminFirestore.collection('transactions').where('toUserId', '==', profileUserId).where('deliveryStatus', '==', 'Completed').get();
         return snapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as Omit<Transaction, 'id'>) }));
       }, 30) // Cache for 30 seconds
     ]);

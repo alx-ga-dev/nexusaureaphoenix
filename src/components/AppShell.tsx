@@ -77,7 +77,7 @@ import { Badge } from './ui/badge';
 import { useAuth } from '@/components/AuthProvider';
 import { useCollection } from '@/hooks/use-collection';
 import { WishlistProvider } from '@/context/WishListContext';
-import { DEFAULT_USER_ID, ADMIN_LEVEL } from '@/lib/constants';
+import { DEFAULT_USER_ID, ADMIN_LEVEL, MANAGER_LEVEL } from '@/lib/constants';
 import { useMemo } from 'react';
 
 type ExchangeContextType = {
@@ -311,9 +311,11 @@ const AppLayout = ({ userData, children }: { userData: UserType, children: React
         { href: '/dashboard/users', icon: UsersIcon, label: t('navUsers') },
         { href: '/dashboard/wish-list', icon: ScrollText, label: t('navWishList') },
     ];
+    const operationsNavItems = [
+      { href: '/operations/deliver-pay', icon: ClipboardList, label: t('navDeliverPay') },
+    ];
     const adminNavItems = [
         { href: '/admin/reports', icon: FileText, label: t('navReports') },
-        { href: '/admin/deliver-settle', icon: ClipboardList, label: t('navDeliverSettle') },
     ];
     const managementNavItems = [
         { href: '/admin/users', icon: UsersIcon, label: t('navUsers') },
@@ -352,7 +354,13 @@ const AppLayout = ({ userData, children }: { userData: UserType, children: React
                     </SidebarMenuItem>
                     ))}
                 </SidebarMenu>
-                {isAdmin && (
+                {userData.roleLevel >= MANAGER_LEVEL && (
+                    <SidebarMenu className="mt-4">
+                      <SidebarMenuItem><h3 className="px-2 text-sm font-semibold text-muted-foreground">{t('navOperations')}</h3></SidebarMenuItem>
+                      {operationsNavItems.map((item) => (<SidebarMenuItem key={item.href}><Link href={item.href}><SidebarMenuButton isActive={pathname.startsWith(item.href)} tooltip={{ children: item.label }}><item.icon /><span>{item.label}</span></SidebarMenuButton></Link></SidebarMenuItem>))}
+                    </SidebarMenu>
+                )}
+                {userData.roleLevel >= ADMIN_LEVEL && (
                     <SidebarMenu className="mt-4">
                       <SidebarMenuItem><h3 className="px-2 text-sm font-semibold text-muted-foreground">{t('navAdmin')}</h3></SidebarMenuItem>
                       {adminNavItems.map((item) => (<SidebarMenuItem key={item.href}><Link href={item.href}><SidebarMenuButton isActive={pathname.startsWith(item.href)} tooltip={{ children: item.label }}><item.icon /><span>{item.label}</span></SidebarMenuButton></Link></SidebarMenuItem>))}
