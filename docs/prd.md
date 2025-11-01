@@ -124,20 +124,22 @@ All application data is stored and managed in a Google Firestore database. The s
 
 #### **5\. Non-Functional Requirements**
 
-* **Technology Stack:** Next.js (App Router), React, TypeScript, Tailwind CSS, ShadCN UI Components, Genkit (for AI), Firebase (Auth & Firestore).  
-The application should leverage Next.js Server Components for initial page loads and data fetching, ensuring performance and simplifying client-side state management. Client Components are used for interactive parts.
-* **Internationalization (i18n):** The UI shall have multi-language support, starting with English and Spanish. A translation hook will manage language strings based on browser preferences (which can be different from OS settings).  
-* **Responsiveness:** The application must be fully responsive and functional on both desktop and mobile devices.  
-* **UI/UX:** The application will maintain a modern, clean, and professional aesthetic, using the ShadCN component library and a consistent color scheme defined in `globals.css`.
+*   **Technology Stack:** Next.js (App Router), React, TypeScript, Tailwind CSS, ShadCN UI Components, Genkit (for AI), Firebase (Auth & Firestore).  
+    The application will leverage Next.js Server Components for initial page loads and data fetching, ensuring performance. Client Components are used for interactive UIs, which in turn call Server Actions for secure, server-only logic.
+*   **Internationalization:** The UI shall have multi-language support, starting with English and Spanish. A translation hook will manage language strings based on browser preferences (which can be different from OS settings).  
+*   **Responsiveness:** The application must be fully responsive and functional on both desktop and mobile devices.  
+*   **UI/UX:** The application will maintain a modern, clean, and professional aesthetic, using the ShadCN component library and a consistent color scheme defined in \`globals.css\`.
 
 #### **6\. Implementation Details**
 
-##### **6\.1\. Centralized, API-Driven Authentication**
+##### **6.1. Centralized Authentication via Server Actions**
 
-All authentication and data exchange should be handled by a centralized, server-side API. The client-side application should not directly interacts with Firebase for sign-in or sign-up. Instead, it should make requests to a dedicated API endpoint, which then communicates with Firebase to authenticate the user and generate a custom token. This token is returned to the client, which then uses it to sign in. This approach offers several key advantages:
-    * **Improved Security**: By abstracting the authentication logic to the server, we reduce the client's attack surface and prevent direct interaction with the Firebase API, minimizing the risk of unauthorized access.
-    * **Simplified Client-Side Logic**: The client is now only responsible for initiating the authentication request and receiving the token, simplifying the codebase and reducing the likelihood of errors.
-    * **Greater Flexibility**: This centralized approach allows us to easily modify or expand our authentication methods in the future without requiring changes to the client-side application.
+The authentication process is designed to be secure, efficient, and robust, leveraging the modern features of the Next.js App Router.
+
+*   **Server Actions as the Core:** Instead of traditional API routes, the application uses a **Server Action** (`loginAndGetUser`) as the single, centralized entry point for all login logic. This action is executed only on the server, ensuring that sensitive processes like custom token creation and user data retrieval are never exposed to the client.
+*   **Simplified Client:** The login page (`CustomLoginPage.tsx`) is a Client Component responsible only for capturing the user ID (via QR code, NFC simulation, or manual input) and invoking the Server Action. It does not contain any core business logic.
+*   **Efficient State Management:** The `AuthProvider` component efficiently manages the user's session state. An initial loading state prevents the "flashing" of the login page for authenticated users, providing a smoother user experience.
+*   **Greater Flexibility**: This centralized approach allows us to easily modify or expand our authentication methods in the future without requiring changes to the client-side application.
 
 ##### **6\.2\. Custom Claims for Access Control**
 
@@ -227,6 +229,7 @@ Client-side data fetching is not allowed. Purpose specific entry points can be c
 
 #### **8\. Style Guidelines**
 
+##### **8.1. Definitions**
     - Primary color: Muted rose (#E0B7C1) to represent the exchange of gifts, while being gender-neutral.
     - Background color: Very light rose (#F8F1F3), of the same hue as the primary, is non-distracting as a background.
     - Accent color: Light periwinkle (#B7BCE0), a calming, and gender-neutral hue that is far enough from the primary to provide useful contrast.
@@ -234,6 +237,10 @@ Client-side data fetching is not allowed. Purpose specific entry points can be c
     - Use clear, minimalist icons to represent gift categories, levels, and status indicators. Consider using a consistent style for all icons to maintain a unified visual experience.
     - Employ a responsive grid layout to ensure optimal viewing across devices. Prioritize key information and use clear visual hierarchies to guide user attention. Implement intuitive navigation patterns for easy access to all features.
     - Use subtle transitions and animations to enhance user interactions, such as smooth card transitions and loading indicators. Avoid overly distracting animations and focus on enhancing the overall user experience.
+
+##### **8.2. User Interface (UI)**
+    - Employ a responsive grid layout to ensure optimal viewing across devices. Prioritize key information and use clear visual hierarchies to guide user attention. Implement intuitive navigation patterns for easy access to all features.
+    - Use subtle transitions and animations to enhance user interactions. The login process leverages React's `useTransition` hook to provide a seamless, non-reloading login experience. A full-page loading indicator is displayed during session restoration to provide clear feedback to the user and prevent UI layout shifts. Avoid overly distracting animations and focus on enhancing the overall user experience.
 
 #### **9\. Command-Line Administration and Initialization**
 
