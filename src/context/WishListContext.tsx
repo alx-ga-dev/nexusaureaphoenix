@@ -4,7 +4,6 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/components/AuthProvider';
-import { DEFAULT_USER_ID } from '@/lib/constants';
 
 type WishlistContextType = {
   wishlist: string[];
