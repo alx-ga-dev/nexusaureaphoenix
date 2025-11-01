@@ -1,4 +1,4 @@
-import type { User, Gift, Collection, Rarity, Transaction, Exchange } from './types';
+import type { User, Gift, Collection, Rarity, Transaction } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 import { DEFAULT_USER_ID } from './constants';
 
@@ -172,27 +172,12 @@ export const gifts: Gift[] = [
 ];
 
 export const transactions: Transaction[] = [
-    { id: 'exc-1', userId: 'user-1', process: "Payment", txStatus: 'Completed' },
-    { id: 'exc-2', userId: 'user-2', process: "Delivery", txStatus:  'Pending' },
-    { id: 'exc-3', userId: 'user-3', process: "Payment", txStatus: 'Pending' },
-    { id: 'exc-4', userId: 'user-4', process: "Delivery", txStatus:  'Pending' },
-    { id: 'exc-5', userId: 'user-3', process: "Payment", txStatus: 'Pending' },
-    { id: 'exc-6', userId: 'user-2', process: "Delivery", txStatus:  'Pending' },
-    { id: 'exc-7', userId: 'user-1', process: "Payment", txStatus: 'Pending' },
-    { id: 'exc-8', userId: 'user-4', process: "Delivery", txStatus:  'Pending' },
-    { id: 'exc-9', userId: 'user-1', process: "Payment", txStatus: 'Pending' },
-    { id: 'exc-10', userId: 'user-2', process: "Delivery", txStatus:  'Pending' },
-    { id: 'exc-11', userId: 'user-3', process: "Payment", txStatus: 'Pending' },
-    { id: 'exc-12', userId: 'user-4', process: "Delivery", txStatus:  'Pending' },
-];
-  
-export const exchanges: Exchange[] = [
-    { id: 'txn-1', giftId: 'cosmic-keychain', fromTxId: 'exc-1', toTxId: 'exc-2', participants: ['user-1', 'user-2'], date: '2023-10-01', exchStatus: 'Completed', type: 'gift' },
-    { id: 'txn-2', giftId: 'nebula-pin', fromTxId: 'exc-3', toTxId: 'exc-4', participants: ['user-3', 'user-4'], date: '2023-10-02', exchStatus: 'Pending', type: 'send' },
-    { id: 'txn-3', giftId: 'orions-belt', fromTxId: 'exc-5', toTxId: 'exc-6', participants: ['user-3', 'user-2'], date: '2023-10-03', exchStatus: 'Completed', type: 'gift' },
-    { id: 'txn-4', giftId: 'captains-log', fromTxId: 'exc-7', toTxId: 'exc-8', participants: ['user-1', 'user-4'], date: '2023-10-04', exchStatus: 'Completed', type: 'gift' },
-    { id: 'txn-5', giftId: 'sticker-pack', fromTxId: 'exc-9', toTxId: 'exc-10', participants: ['user-1', 'user-2'], date: '2023-10-05', exchStatus: 'Canceled', type: 'gift' },
-    { id: 'txn-6', giftId: 'starlight-print', fromTxId: 'exc-11', toTxId: 'exc-12', participants: ['user-3', 'user-4'], date: '2023-10-06', exchStatus: 'Completed', type: 'send' },
+    { id: 'txn-1', giftId: 'cosmic-keychain', fromUserId: 'user-1', toUserId: 'user-2', participants: ['user-1', 'user-2'], type: 'gift', acceptedStatus: 'Completed', paymentStatus:'Pending', deliveryStatus: 'Pending', date: '2023-10-01' },
+    { id: 'txn-2', giftId: 'nebula-pin', fromUserId: 'user-3', toUserId: 'user-4', participants: ['user-3', 'user-4'], type: 'send', acceptedStatus: 'Completed', paymentStatus:'Pending', deliveryStatus: 'Pending', date: '2023-10-02' },
+    { id: 'txn-3', giftId: 'orions-belt', fromUserId: 'user-3', toUserId: 'user-2', participants: ['user-3', 'user-2'], type: 'gift', acceptedStatus: 'Completed', paymentStatus:'Pending', deliveryStatus: 'Pending', date: '2023-10-03' },
+    { id: 'txn-4', giftId: 'captains-log', fromUserId: 'user-1', toUserId: 'user-4', participants: ['user-1', 'user-4'], type: 'gift', acceptedStatus: 'Completed', paymentStatus:'Pending', deliveryStatus: 'Pending', date: '2023-10-04' },
+    { id: 'txn-5', giftId: 'sticker-pack', fromUserId: 'user-1', toUserId: 'user-2', participants: ['user-1', 'user-2'], type: 'send', acceptedStatus: 'Pending', paymentStatus:'Pending', deliveryStatus: 'Pending', date: '2023-10-05' },
+    { id: 'txn-6', giftId: 'starlight-print', fromUserId: 'user-3', toUserId: 'user-4', participants: ['user-3', 'user-4'], type: 'gift', acceptedStatus: 'Completed', paymentStatus:'Pending', deliveryStatus: 'Pending', date: '2023-10-06' },
 ];
   
 // This data is now primarily for local reference and will be replaced by Firestore data in the UI.

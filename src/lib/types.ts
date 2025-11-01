@@ -4,7 +4,7 @@ export type LocalizedString = Record<string, string>;
 export type User = {
   id: string;
   name: string;
-  type: 'Blue' | 'Pink';
+  type: 'Blue' | 'Pink' | 'Black';
   roleLevel: number;
   wishlist?: string[];
 };
@@ -35,9 +35,8 @@ export type Gift = {
   imageHint: string;
 };
 
-export type DeliveryStatus = 'Pending' | 'Delivered' | 'Canceled';
-export type SettlementStatus = 'Unpaid' | 'Paid' | 'Canceled';
-export type TransactionType = 'exchange' | 'gift' | 'send';
+export type OperationStatus = 'Pending' | 'Completed' | 'Canceled';
+export type TransactionType =  'gift' | 'send';
 
 export type Transaction = {
   id: string;
@@ -45,8 +44,9 @@ export type Transaction = {
   fromUserId: string;
   toUserId: string;
   participants: string[]; // for querying
-  date: string;
-  deliveryStatus: DeliveryStatus;
-  settlementStatus: SettlementStatus;
   type: TransactionType;
+  acceptedStatus: OperationStatus;
+  paymentStatus: OperationStatus;
+  deliveryStatus: OperationStatus;
+  date: string;
 };

@@ -9,7 +9,7 @@ import { getStorage } from 'firebase-admin/storage';
 import axios from 'axios';
 
 // Import all seed data, using the correct 'wishList' export
-import { users, collections, rarities, gifts, transactions, wishList, exchanges } from '../src/lib/data';
+import { users, collections, rarities, gifts, transactions, wishList } from '../src/lib/data';
 
 // --- Firebase Admin SDK Initialization ---
 if (!process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
@@ -120,8 +120,7 @@ async function initDatabase() {
   await seedCollection('collections', collections);
   await seedCollection('rarities', rarities);
   await seedCollection('transactions', transactions);
-  await seedCollection('exchanges', exchanges);
-
+  
   // 4. Seed gifts (which includes uploading their images)
   await seedGiftsWithImages();
 
