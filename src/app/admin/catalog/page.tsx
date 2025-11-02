@@ -19,8 +19,6 @@ async function fetchAdminCatalogData() {
 
   try {
       const decodedClaims = await firebaseAdminAuth.verifySessionCookie(sessionCookie, true);
-
-      // Fetch current user data from Firestore
       const userId = decodedClaims.uid;
 
       // IMPORTANT: Manager level or higher required to access this page
